@@ -92,8 +92,9 @@ parser.add_argument("--squared_dice", action="store_true", help="use squared Dic
 parser.add_argument("--data_ratio", default=1.0, type=float, help= "How much data you will use")
 
 
+
 def main():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
     args = parser.parse_args()
     args.amp = not args.noamp
     args.logdir = "./runs/" + args.logdir

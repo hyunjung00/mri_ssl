@@ -172,7 +172,7 @@ def main():
     parser.add_argument("--logdir", default="ssl_mri_pretrained", type=str, help="directory to save the tensorboard logs")
     parser.add_argument("--epochs", default=100, type=int, help="number of training epochs")
     parser.add_argument("--num_steps", default=100000, type=int, help="number of training iterations")
-    parser.add_argument("--eval_num", default=1000, type=int, help="evaluation frequency")
+    parser.add_argument("--eval_num", default=5000, type=int, help="evaluation frequency")
     parser.add_argument("--warmup_steps", default=500, type=int, help="warmup steps")
     parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
     parser.add_argument("--feature_size", default=48, type=int, help="embedding size")
