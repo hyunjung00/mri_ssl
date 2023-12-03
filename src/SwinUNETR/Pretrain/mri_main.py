@@ -57,6 +57,7 @@ def main():
         for step, batch in enumerate(train_loader):
             t1 = time()
             x = batch["image"].cuda()
+            ForkedPdb().set_trace()
             x1, rot1 = rot_rand(args, x)
             x2, rot2 = rot_rand(args, x)
             x1_augment = aug_rand(args, x1)
@@ -174,7 +175,7 @@ def main():
     parser.add_argument("--num_steps", default=100000, type=int, help="number of training iterations")
     parser.add_argument("--eval_num", default=5000, type=int, help="evaluation frequency")
     parser.add_argument("--warmup_steps", default=500, type=int, help="warmup steps")
-    parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
+    parser.add_argument("--in_channels", default=4, type=int, help="number of input channels")
     parser.add_argument("--feature_size", default=48, type=int, help="embedding size")
     parser.add_argument("--dropout_path_rate", default=0.0, type=float, help="drop path rate")
     parser.add_argument("--use_checkpoint", action="store_true", help="use gradient checkpointing to save memory")
@@ -211,7 +212,7 @@ def main():
     parser.add_argument("--fold", default=0, type=int, help="data fold")
 
     args = parser.parse_args()
-    os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0,2"
 
     logdir = "./runs/" + args.logdir
     args.amp = not args.noamp

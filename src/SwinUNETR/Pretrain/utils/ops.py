@@ -12,6 +12,21 @@
 import numpy as np
 import torch
 from numpy.random import randint
+import pdb
+import sys
+
+class ForkedPdb(pdb.Pdb):
+    """
+    PDB Subclass for debugging multi-processed code
+    Suggested in: https://stackoverflow.com/questions/4716533/how-to-attach-debugger-to-a-python-subproccess
+    """
+    def interaction(self, *args, **kwargs):
+        _stdin = sys.stdin
+        try:
+            sys.stdin = open('/dev/stdin')
+            pdb.Pdb.interaction(self, *args, **kwargs)
+        finally:
+            sys.stdin = _stdin
 
 
 def patch_rand_drop(args, x, x_rep=None, max_drop=0.3, max_block_sz=0.25, tolr=0.05):
@@ -44,6 +59,7 @@ def patch_rand_drop(args, x, x_rep=None, max_drop=0.3, max_block_sz=0.25, tolr=0
 
 
 def rot_rand(args, x_s):
+    ForkedPdb().set_trace()
     img_n = x_s.size()[0]
     x_aug = x_s.detach().clone()
     device = torch.device(f"cuda:{args.local_rank}")

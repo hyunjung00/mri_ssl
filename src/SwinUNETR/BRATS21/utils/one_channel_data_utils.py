@@ -17,25 +17,29 @@ import numpy as np
 import torch
 
 from monai import data, transforms
-import sys
 import pdb
-import random 
+import sys
+
 
 class ForkedPdb(pdb.Pdb):
+    """A Pdb subclass that may be used
+    from a forked multiprocessing child
+
     """
-    PDB Subclass for debugging multi-processed code
-    Suggested in: https://stackoverflow.com/questions/4716533/how-to-attach-debugger-to-a-python-subproccess
-    """
+
     def interaction(self, *args, **kwargs):
         _stdin = sys.stdin
         try:
-            sys.stdin = open('/dev/stdin')
+            sys.stdin = open("/dev/stdin")
             pdb.Pdb.interaction(self, *args, **kwargs)
         finally:
             sys.stdin = _stdin
 
+
 class Sampler(torch.utils.data.Sampler):
-    def __init__(self, dataset, num_replicas=None, rank=None, shuffle=True, make_even=True):
+    def __init__(
+        self, dataset, num_replicas=None, rank=None, shuffle=True, make_even=True
+    ):
         if num_replicas is None:
             if not torch.distributed.is_available():
                 raise RuntimeError("Requires distributed package to be available")
@@ -53,7 +57,9 @@ class Sampler(torch.utils.data.Sampler):
         self.num_samples = int(math.ceil(len(self.dataset) * 1.0 / self.num_replicas))
         self.total_size = self.num_samples * self.num_replicas
         indices = list(range(len(self.dataset)))
-        self.valid_length = len(indices[self.rank : self.total_size : self.num_replicas])
+        self.valid_length = len(
+            indices[self.rank : self.total_size : self.num_replicas]
+        )
 
     def __iter__(self):
         if self.shuffle:
@@ -67,7 +73,9 @@ class Sampler(torch.utils.data.Sampler):
                 if self.total_size - len(indices) < len(indices):
                     indices += indices[: (self.total_size - len(indices))]
                 else:
-                    extra_ids = np.random.randint(low=0, high=len(indices), size=self.total_size - len(indices))
+                    extra_ids = np.random.randint(
+                        low=0, high=len(indices), size=self.total_size - len(indices)
+                    )
                     indices += [indices[ids] for ids in extra_ids]
             assert len(indices) == self.total_size
         indices = indices[self.rank : self.total_size : self.num_replicas]
@@ -102,45 +110,69 @@ def datafold_read(datalist, basedir, fold=0, key="training"):
         else:
             tr.append(d)
 
-    return tr, val
+    # this part is for using only 1-channel rather than 4-channel
+    tr_one_channel = []
+    for item in tr:
+        for one_nii in item["image"]:
+            item_dict = {"fold": item["fold"], "image": one_nii, "label": item["label"]}
+            tr_one_channel.append(item_dict)
+
+    # pdb.set_trace()
+    val_one_channel = []
+    for item in val:
+        for one_nii in item["image"]:
+            item_dict = {"fold": item["fold"], "image": one_nii, "label": item["label"]}
+            val_one_channel.append(item_dict)
+    return tr_one_channel, val_one_channel
+
+    # return tr, val
 
 
 def get_loader(args):
     data_dir = args.data_dir
-    datalist_json = args.json_list
-    train_files, validation_files = datafold_read(datalist=datalist_json, basedir=data_dir, fold=args.fold)
-    #ForkedPdb().set_trace()
 
-    # decide how much data that you will use 
-    n = round(len(train_files) * args.data_ratio)
-    train_files = random.choices(train_files, k=n)
-    pdb.set_trace()
-    print("Dataset all training: number of data: {}".format(len(train_files)))
+    datalist_json = args.json_list
+    train_files, validation_files = datafold_read(
+        datalist=datalist_json, basedir=data_dir, fold=args.fold
+    )
+
+    # ForkedPdb().set_trace()
 
     train_transform = transforms.Compose(
         [
             transforms.LoadImaged(keys=["image", "label"]),
+            transforms.AddChanneld(keys=["image", "label"]),
             transforms.ConvertToMultiChannelBasedOnBratsClassesd(keys="label"),
             transforms.CropForegroundd(
-                keys=["image", "label"], source_key="image", k_divisible=[args.roi_x, args.roi_y, args.roi_z]
+                keys=["image", "label"],
+                source_key="image",
+                k_divisible=[args.roi_x, args.roi_y, args.roi_z],
             ),
             transforms.RandSpatialCropd(
-                keys=["image", "label"], roi_size=[args.roi_x, args.roi_y, args.roi_z], random_size=False
+                keys=["image", "label"],
+                roi_size=[args.roi_x, args.roi_y, args.roi_z],
+                random_size=False,
             ),
             transforms.RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),
             transforms.RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=1),
             transforms.RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=2),
-            transforms.NormalizeIntensityd(keys="image", nonzero=True, channel_wise=True),
+            transforms.NormalizeIntensityd(
+                keys="image", nonzero=True, channel_wise=True
+            ),
             transforms.RandScaleIntensityd(keys="image", factors=0.1, prob=1.0),
             transforms.RandShiftIntensityd(keys="image", offsets=0.1, prob=1.0),
             transforms.ToTensord(keys=["image", "label"]),
         ]
     )
+
     val_transform = transforms.Compose(
         [
             transforms.LoadImaged(keys=["image", "label"]),
+            transforms.AddChanneld(keys=["image", "label"]),
             transforms.ConvertToMultiChannelBasedOnBratsClassesd(keys="label"),
-            transforms.NormalizeIntensityd(keys="image", nonzero=True, channel_wise=True),
+            transforms.NormalizeIntensityd(
+                keys="image", nonzero=True, channel_wise=True
+            ),
             transforms.ToTensord(keys=["image", "label"]),
         ]
     )
@@ -148,8 +180,11 @@ def get_loader(args):
     test_transform = transforms.Compose(
         [
             transforms.LoadImaged(keys=["image", "label"]),
+            transforms.AddChanneld(keys=["image", "label"]),
             transforms.ConvertToMultiChannelBasedOnBratsClassesd(keys="label"),
-            transforms.NormalizeIntensityd(keys="image", nonzero=True, channel_wise=True),
+            transforms.NormalizeIntensityd(
+                keys="image", nonzero=True, channel_wise=True
+            ),
             transforms.ToTensord(keys=["image", "label"]),
         ]
     )
@@ -158,7 +193,12 @@ def get_loader(args):
         val_ds = data.Dataset(data=validation_files, transform=test_transform)
         val_sampler = Sampler(val_ds, shuffle=False) if args.distributed else None
         test_loader = data.DataLoader(
-            val_ds, batch_size=1, shuffle=False, num_workers=args.workers, sampler=val_sampler, pin_memory=True
+            val_ds,
+            batch_size=1,
+            shuffle=False,
+            num_workers=args.workers,
+            sampler=val_sampler,
+            pin_memory=True,
         )
 
         loader = test_loader
@@ -166,6 +206,7 @@ def get_loader(args):
         train_ds = data.Dataset(data=train_files, transform=train_transform)
 
         train_sampler = Sampler(train_ds) if args.distributed else None
+
         train_loader = data.DataLoader(
             train_ds,
             batch_size=args.batch_size,
@@ -177,8 +218,14 @@ def get_loader(args):
         val_ds = data.Dataset(data=validation_files, transform=val_transform)
         val_sampler = Sampler(val_ds, shuffle=False) if args.distributed else None
         val_loader = data.DataLoader(
-            val_ds, batch_size=1, shuffle=False, num_workers=args.workers, sampler=val_sampler, pin_memory=True
+            val_ds,
+            batch_size=1,
+            shuffle=False,
+            num_workers=args.workers,
+            sampler=val_sampler,
+            pin_memory=True,
         )
         loader = [train_loader, val_loader]
 
     return loader
+

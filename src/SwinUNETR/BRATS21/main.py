@@ -55,7 +55,7 @@ parser.add_argument("--dist-backend", default="nccl", type=str, help="distribute
 parser.add_argument("--norm_name", default="instance", type=str, help="normalization name")
 parser.add_argument("--workers", default=8, type=int, help="number of workers")
 parser.add_argument("--feature_size", default=48, type=int, help="feature size")
-parser.add_argument("--in_channels", default=4, type=int, help="number of input channels")
+parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
 parser.add_argument("--out_channels", default=3, type=int, help="number of output channels")
 parser.add_argument("--cache_dataset", action="store_true", help="use monai Dataset class")
 parser.add_argument("--a_min", default=-175.0, type=float, help="a_min in ScaleIntensityRanged")
@@ -94,7 +94,7 @@ parser.add_argument("--data_ratio", default=1.0, type=float, help= "How much dat
 
 
 def main():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     args = parser.parse_args()
     args.amp = not args.noamp
     args.logdir = "./runs/" + args.logdir
