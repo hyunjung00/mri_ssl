@@ -59,7 +59,6 @@ def patch_rand_drop(args, x, x_rep=None, max_drop=0.3, max_block_sz=0.25, tolr=0
 
 
 def rot_rand(args, x_s):
-    ForkedPdb().set_trace()
     img_n = x_s.size()[0]
     x_aug = x_s.detach().clone()
     device = torch.device(f"cuda:{args.local_rank}")

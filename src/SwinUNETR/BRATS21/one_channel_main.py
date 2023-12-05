@@ -65,7 +65,7 @@ parser.add_argument(
 parser.add_argument(
     "--max_epochs", default=300, type=int, help="max number of training epochs"
 )
-parser.add_argument("--batch_size", default=2, type=int, help="number of batch size")
+parser.add_argument("--batch_size", default=4, type=int, help="number of batch size")
 parser.add_argument(
     "--sw_batch_size", default=4, type=int, help="number of sliding window batch size"
 )
@@ -245,6 +245,7 @@ def main_worker(gpu, args):
         feature_size=args.feature_size,
         use_checkpoint=args.use_checkpoint,
     )
+
 
     if args.pretrained_dir == "./pretrained_models/ssl_ct_pretrained/":
         model_dict = torch.load(pretrained_pth)

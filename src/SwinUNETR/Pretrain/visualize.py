@@ -54,18 +54,17 @@ def rot_rand(x_s):
     return x_aug, x_rot
 
 
-data_dir = "../../data/"
+data_dir = "../../../data/crossmoda/"
 
 img_add = os.path.join(
-    data_dir, "TrainingData/BraTS2021_00006/BraTS2021_00006_flair.nii.gz"
+    data_dir, "ceT1/crossmoda2021_ldn_100_ceT1.nii.gz"
 )
 label_add = os.path.join(
-    data_dir, "TrainingData/BraTS2021_00006/BraTS2021_00006_seg.nii.gz"
+    data_dir, "ceT1/crossmoda2021_ldn_100_Label.nii.gz"
 )
 img = nib.load(img_add).get_fdata()
 label = nib.load(label_add).get_fdata()
 print(f"image shape: {img.shape}, label shape: {label.shape}")
-print(img)
 
 ################### just visualize the slice #######################
 
@@ -78,6 +77,3 @@ plt.title("label")
 plt.imshow(label[:, :, 48])
 plt.savefig("example.png")
 
-################## visulaize the augmentation #########################
-x1, rot1 = rot_rand(img)
-x2, rot2 = rot_rand(img)
