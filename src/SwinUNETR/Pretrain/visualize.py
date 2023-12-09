@@ -23,6 +23,7 @@ from monai.transforms import (
     Spacingd,
     SpatialPadd,
     ToTensord,
+    Resized
 )
 import json
 import math
@@ -32,27 +33,6 @@ import numpy as np
 import torch
 import sys
 import pdb
-
-
-def rot_rand(x_s):
-    img_n = x_s.size()[0]
-    x_aug = x_s.detach().clone()
-    x_rot = torch.zeros(img_n).long()
-    for i in range(img_n):
-        x = x_s[i]
-        orientation = np.random.randint(0, 4)
-        if orientation == 0:
-            pass
-        elif orientation == 1:
-            x = x.rot90(1, (2, 3))
-        elif orientation == 2:
-            x = x.rot90(2, (2, 3))
-        elif orientation == 3:
-            x = x.rot90(3, (2, 3))
-        x_aug[i] = x
-        x_rot[i] = orientation
-    return x_aug, x_rot
-
 
 data_dir = "../../../data/crossmoda/"
 
@@ -65,6 +45,7 @@ label_add = os.path.join(
 img = nib.load(img_add).get_fdata()
 label = nib.load(label_add).get_fdata()
 print(f"image shape: {img.shape}, label shape: {label.shape}")
+print(type(img))
 
 ################### just visualize the slice #######################
 

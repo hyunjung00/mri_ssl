@@ -24,10 +24,16 @@ from monai.transforms import (
     Spacingd,
     SpatialPadd,
     ToTensord,
+    Resized,
+    CenterSpatialCropd,
 )
 
 import sys
 import pdb
+import argparse
+
+
+
 
 class ForkedPdb(pdb.Pdb):
     """
@@ -85,11 +91,12 @@ def get_loader(args):
             LoadImaged(keys=["image"]),
             AddChanneld(keys=["image"]),
             Orientationd(keys=["image"], axcodes="RAS"),
+            Resized(keys=["image"], spatial_size=(args.resize_x, args.resize_y, args.resize_z)),
             ScaleIntensityRanged(
                 keys=["image"], a_min=args.a_min, a_max=args.a_max, b_min=args.b_min, b_max=args.b_max, clip=True
             ),
             SpatialPadd(keys="image", spatial_size=[args.roi_x, args.roi_y, args.roi_z]),
-            CropForegroundd(keys=["image"], source_key="image", k_divisible=[args.roi_x, args.roi_y, args.roi_z]),
+            CenterSpatialCropd(keys=["image"], roi_size=(args.roi_x, args.roi_y, args.roi_z)),
             RandSpatialCropSamplesd(
                 keys=["image"],
                 roi_size=[args.roi_x, args.roi_y, args.roi_z],
@@ -100,16 +107,19 @@ def get_loader(args):
             ToTensord(keys=["image"]),
         ]
     )
+    
     val_transforms = Compose(
         [
             LoadImaged(keys=["image"]),
             AddChanneld(keys=["image"]),
             Orientationd(keys=["image"], axcodes="RAS"),
+            Resized(keys=["image"], spatial_size=(args.resize_x, args.resize_y, args.resize_z)),
             ScaleIntensityRanged(
                 keys=["image"], a_min=args.a_min, a_max=args.a_max, b_min=args.b_min, b_max=args.b_max, clip=True
             ),
             SpatialPadd(keys="image", spatial_size=[args.roi_x, args.roi_y, args.roi_z]),
-            CropForegroundd(keys=["image"], source_key="image", k_divisible=[args.roi_x, args.roi_y, args.roi_z]),
+            #CropForegroundd(keys=["image"], source_key="image", k_divisible=[args.roi_x, args.roi_y, args.roi_z]),
+            CenterSpatialCropd(keys=["image"], roi_size=(args.roi_x, args.roi_y, args.roi_z)),
             RandSpatialCropSamplesd(
                 keys=["image"],
                 roi_size=[args.roi_x, args.roi_y, args.roi_z],
@@ -145,11 +155,12 @@ def get_loader(args):
         train_ds, batch_size=args.batch_size, num_workers=num_workers, sampler=train_sampler, drop_last=True
     )
 
-
     val_ds = Dataset(data=val_files, transform=val_transforms)
     val_loader = DataLoader(val_ds, batch_size=args.batch_size, num_workers=num_workers, shuffle=False, drop_last=True)
+
 
     return train_loader, val_loader
 
 if __name__ == "__main__":
-    get_loader()
+    args = parser.parse_args()
+    get_loader(args)

@@ -179,8 +179,8 @@ def main():
     parser.add_argument("--dropout_path_rate", default=0.0, type=float, help="drop path rate")
     parser.add_argument("--use_checkpoint", action="store_true", help="use gradient checkpointing to save memory")
     parser.add_argument("--spatial_dims", default=3, type=int, help="spatial dimension of input data")
-    parser.add_argument("--a_min", default=-1000, type=float, help="a_min in ScaleIntensityRanged")
-    parser.add_argument("--a_max", default=1000, type=float, help="a_max in ScaleIntensityRanged")
+    parser.add_argument("--a_min", default=0, type=float, help="a_min in ScaleIntensityRanged")
+    parser.add_argument("--a_max", default=2700, type=float, help="a_max in ScaleIntensityRanged")
     parser.add_argument("--b_min", default=0.0, type=float, help="b_min in ScaleIntensityRanged")
     parser.add_argument("--b_max", default=1.0, type=float, help="b_max in ScaleIntensityRanged")
     parser.add_argument("--space_x", default=1.5, type=float, help="spacing in x direction")
@@ -209,6 +209,9 @@ def main():
     parser.add_argument("--num_workers", default=12, help="number of workers ")
     parser.add_argument("--rank", default=0, help="rank for DDP")
     parser.add_argument("--fold", default=0, type=int, help="data fold")
+    parser.add_argument("--resize_x", default=128, type=int, help="roi size in x direction")
+    parser.add_argument("--resize_y", default=128, type=int, help="roi size in y direction")
+    parser.add_argument("--resize_z", default=30, type=int, help="roi size in z direction")
 
     args = parser.parse_args()
     os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
