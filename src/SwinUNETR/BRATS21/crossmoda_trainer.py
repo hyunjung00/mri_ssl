@@ -94,13 +94,13 @@ def val_epoch(model, loader, epoch, acc_func, args, model_inferer=None, post_sig
                 run_acc.update(acc.cpu().numpy(), n=not_nans.cpu().numpy())
 
             if args.rank == 0:
-                Dice_Back = run_acc.avg[0]
-                Dice_VS = run_acc.avg[1]
-                Dice_Co = run_acc.avg[2]
+                #Dice_Back = run_acc.avg[0]
+                Dice_VS = run_acc.avg[0]
+                Dice_Co = run_acc.avg[1]
                 print(
                     "Val {}/{} {}/{}".format(epoch, args.max_epochs, idx, len(loader)),
-                    ", Dice_Back:",
-                    Dice_Back,
+                    # ", Dice_Back:",
+                    # Dice_Back,
                     ", Dice_VS:",
                     Dice_VS,
                     ", Dice_Co:",
@@ -182,17 +182,17 @@ def run_training(
             )
 
             if args.rank == 0:
-                Dice_TC = val_acc[0]
-                Dice_WT = val_acc[1]
-                Dice_ET = val_acc[2]
+                #Dice_TC = val_acc[0]
+                Dice_VS = val_acc[0]
+                Dice_Co = val_acc[1]
                 print(
                     "Final validation stats {}/{}".format(epoch, args.max_epochs - 1),
-                    ", Dice_TC:",
-                    Dice_TC,
-                    ", Dice_WT:",
-                    Dice_WT,
-                    ", Dice_ET:",
-                    Dice_ET,
+                    # ", Dice_TC:",
+                    # Dice_TC,
+                    ", Dice_VS:",
+                    Dice_VS,
+                    ", Dice_Co:",
+                    Dice_Co,
                     ", time {:.2f}s".format(time.time() - epoch_time),
                 )
 

@@ -39,7 +39,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--logdir",
-    default="crossmoda_scratch_pretrained",
+    default="crossmoda_ssl_pretrained",
     type=str,
     help="directory to save the tensorboard logs",
 )
@@ -105,7 +105,7 @@ parser.add_argument(
     "--in_channels", default=1, type=int, help="number of input channels"
 )
 parser.add_argument(
-    "--out_channels", default=3, type=int, help="number of output channels"
+    "--out_channels", default=2, type=int, help="number of output channels"
 )
 parser.add_argument(
     "--cache_dataset", action="store_true", help="use monai Dataset class"
@@ -203,10 +203,10 @@ parser.add_argument("--resize_z", default=30, type=int, help="roi size in z dire
 
 
 def main():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "6"
     args = parser.parse_args()
     args.amp = not args.noamp
-    args.logdir = "./runs/" + args.logdir
+    args.logdir = "./runs/" + args.logdir      
     if args.distributed:
         args.ngpus_per_node = torch.cuda.device_count()
         print("Found total gpus", args.ngpus_per_node)
@@ -360,7 +360,7 @@ def main_worker(gpu, args):
     else:
         scheduler = None
 
-    semantic_classes = ["Background", "VS", "Cochlea"]
+    semantic_classes = ["Dice_VS", "Dice_Cochlea"]
 
     accuracy = run_training(
         model=model,

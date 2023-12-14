@@ -183,6 +183,8 @@ def get_loader(args):
             transforms.LoadImaged(keys=["image", "label"]),
             transforms.AddChanneld(keys=["image", "label"]),
             transforms.ConvertToMultiChannelBasedOnBratsClassesd(keys=["label"]),
+            transforms.Resized(keys=["image", "label"], spatial_size=(args.resize_x, args.resize_y, args.resize_z)),
+
             transforms.NormalizeIntensityd(
                 keys="image", nonzero=True, channel_wise=True
             ),

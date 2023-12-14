@@ -35,9 +35,9 @@ parser.add_argument("--b_max", default=1.0, type=float, help="b_max in ScaleInte
 parser.add_argument("--space_x", default=1.5, type=float, help="spacing in x direction")
 parser.add_argument("--space_y", default=1.5, type=float, help="spacing in y direction")
 parser.add_argument("--space_z", default=2.0, type=float, help="spacing in z direction")
-parser.add_argument("--roi_x", default=96, type=int, help="roi size in x direction")
-parser.add_argument("--roi_y", default=96, type=int, help="roi size in y direction")
-parser.add_argument("--roi_z", default=96,  type=int, help="roi size in z direction")
+parser.add_argument("--roi_x", default=512, type=int, help="roi size in x direction")
+parser.add_argument("--roi_y", default=512, type=int, help="roi size in y direction")
+parser.add_argument("--roi_z", default=512,  type=int, help="roi size in z direction")
 parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
 parser.add_argument("--sw_batch_size", default=2, type=int, help="number of sliding window batch size")
 parser.add_argument("--lr", default=4e-4, type=float, help="learning rate")
@@ -62,7 +62,7 @@ parser.add_argument("--distributed", default=True)
 parser.add_argument("--resize_x", default=128, type=int, help="roi size in x direction")
 parser.add_argument("--resize_y", default=128, type=int, help="roi size in y direction")
 parser.add_argument("--resize_z", default=30, type=int, help="roi size in z direction")
-parser.add_argument("--data_dir", default="../../../data/crossmoda/", type=str, help="data directory")
+parser.add_argument("--data_dir", default="../../../../data/crossmoda/", type=str, help="data directory")
 
 
 class ForkedPdb(pdb.Pdb):
@@ -88,7 +88,7 @@ def get_loader(args):
     # split2 = "/hrT2.json"
     # split3 = "/hrT2_val.json"
 
-    list_dir = "./jsons"
+    list_dir = "../jsons"
 
     jsonlist1 = list_dir + split1
     jsonlist2 = list_dir + split2
@@ -118,29 +118,29 @@ def get_loader(args):
             transforms.AddChanneld(keys=["image", "label"]),
             transforms.ConvertToMultiChannelBasedOnBratsClassesd(keys=["label"]),
             transforms.Resized(keys=["image", "label"], spatial_size=(args.resize_x, args.resize_y, args.resize_z)),
-            # transforms.CropForegroundd(
-            #     keys=["image", "label"],
-            #     source_key="image",
-            #     k_divisible=[args.roi_x, args.roi_y, args.roi_z],
-            # ),
-            transforms.SpatialPadd(keys=["image"], spatial_size=[args.roi_x, args.roi_y, args.roi_z]),
-            transforms.SpatialPadd(keys=["label"], mode= "reflect", spatial_size=[args.roi_x, args.roi_y, args.roi_z]),
-
-            transforms.CenterSpatialCropd(keys=["image", "label"], roi_size=(args.roi_x, args.roi_y, args.roi_z)),
-
-            # # transforms.RandSpatialCropd(
+            # # transforms.CropForegroundd(
             # #     keys=["image", "label"],
-            # #     roi_size=[args.roi_x, args.roi_y, args.roi_z],
-            # #     random_size=False,
+            # #     source_key="image",
+            # #     k_divisible=[args.roi_x, args.roi_y, args.roi_z],
             # # ),
-            transforms.RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),
-            transforms.RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=1),
-            transforms.RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=2),
-            transforms.NormalizeIntensityd(
-                keys="image", nonzero=True, channel_wise=True
-            ),
-            transforms.RandScaleIntensityd(keys="image", factors=0.1, prob=1.0),
-            transforms.RandShiftIntensityd(keys="image", offsets=0.1, prob=1.0),
+            # transforms.SpatialPadd(keys=["image"], spatial_size=[args.roi_x, args.roi_y, args.roi_z]),
+            # transforms.SpatialPadd(keys=["label"], mode= "reflect", spatial_size=[args.roi_x, args.roi_y, args.roi_z]),
+
+            # transforms.CenterSpatialCropd(keys=["image", "label"], roi_size=(args.roi_x, args.roi_y, args.roi_z)),
+
+            # # # transforms.RandSpatialCropd(
+            # # #     keys=["image", "label"],
+            # # #     roi_size=[args.roi_x, args.roi_y, args.roi_z],
+            # # #     random_size=False,
+            # # # ),
+            # transforms.RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),
+            # transforms.RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=1),
+            # transforms.RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=2),
+            # transforms.NormalizeIntensityd(
+            #     keys="image", nonzero=True, channel_wise=True
+            # ),
+            # transforms.RandScaleIntensityd(keys="image", factors=0.1, prob=1.0),
+            # transforms.RandShiftIntensityd(keys="image", offsets=0.1, prob=1.0),
             transforms.ToTensord(keys=["image", "label"]),
         ]
     )
