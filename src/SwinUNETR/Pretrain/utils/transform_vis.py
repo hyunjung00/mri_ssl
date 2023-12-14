@@ -53,9 +53,9 @@ parser.add_argument("--b_max", default=1.0, type=float, help="b_max in ScaleInte
 parser.add_argument("--space_x", default=1.5, type=float, help="spacing in x direction")
 parser.add_argument("--space_y", default=1.5, type=float, help="spacing in y direction")
 parser.add_argument("--space_z", default=2.0, type=float, help="spacing in z direction")
-parser.add_argument("--roi_x", default=96, type=int, help="roi size in x direction")
-parser.add_argument("--roi_y", default=96, type=int, help="roi size in y direction")
-parser.add_argument("--roi_z", default=96,  type=int, help="roi size in z direction")
+parser.add_argument("--roi_x", default=128, type=int, help="roi size in x direction")
+parser.add_argument("--roi_y", default=128, type=int, help="roi size in y direction")
+parser.add_argument("--roi_z", default=128,  type=int, help="roi size in z direction")
 parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
 parser.add_argument("--sw_batch_size", default=2, type=int, help="number of sliding window batch size")
 parser.add_argument("--lr", default=4e-4, type=float, help="learning rate")
@@ -78,8 +78,8 @@ parser.add_argument("--rank", default=0, help="rank for DDP")
 parser.add_argument("--fold", default=0, type=int, help="data fold")
 parser.add_argument("--distributed", default=True)
 parser.add_argument("--resize_x", default=128, type=int, help="roi size in x direction")
-parser.add_argument("--resize_y", default=96, type=int, help="roi size in y direction")
-parser.add_argument("--resize_z", default=96, type=int, help="roi size in z direction")
+parser.add_argument("--resize_y", default=128, type=int, help="roi size in y direction")
+parser.add_argument("--resize_z", default=30, type=int, help="roi size in z direction")
 
 
 
@@ -137,20 +137,20 @@ def get_loader(args):
             LoadImaged(keys=["image"]),
             AddChanneld(keys=["image"]),
             Orientationd(keys=["image"], axcodes="RAS"),
-            Resized(keys=["image"], spatial_size=(128, 128, 30)),
-            ScaleIntensityRanged(
-                keys=["image"], a_min=args.a_min, a_max=args.a_max, b_min=args.b_min, b_max=args.b_max, clip=True
-            ),
+            Resized(keys=["image"], spatial_size=(128, 128, 60)),
+            # ScaleIntensityRanged(
+            #     keys=["image"], a_min=args.a_min, a_max=args.a_max, b_min=args.b_min, b_max=args.b_max, clip=True
+            # ),
             SpatialPadd(keys=["image"], spatial_size=[args.roi_x, args.roi_y, args.roi_z]),
             CenterSpatialCropd(keys=["image"], roi_size=(args.roi_x, args.roi_y, args.roi_z)),
             #CropForegroundd(keys=["image"], source_key="image", k_divisible=[args.roi_x, args.roi_y, args.roi_z]),
-            RandSpatialCropSamplesd(
-                keys=["image"],
-                roi_size=[args.roi_x, args.roi_y, args.roi_z],
-                num_samples=args.sw_batch_size,
-                random_center=True,
-                random_size=False,
-            ),
+            # RandSpatialCropSamplesd(
+            #     keys=["image"],
+            #     roi_size=[args.roi_x, args.roi_y, args.roi_z],
+            #     num_samples=args.sw_batch_size,
+            #     random_center=True,
+            #     random_size=False,
+            # ),
             ToTensord(keys=["image"]),
         ]
     )
@@ -213,11 +213,11 @@ def get_loader(args):
     plt.figure("image", (18, 6))
     plt.subplot(1, 2, 1)
     plt.title("transformed")
-    plt.imshow(trans_img_arr[:, :, 40], cmap="gray")
+    plt.imshow(trans_img_arr[:, :, 45], cmap="gray")
     plt.subplot(1, 2, 2)
     plt.title("original")
-    plt.imshow(ori_img_arr[:, :, 31], cmap="gray")
-    plt.savefig("resize_normalize_pad_center_crop_example1.png")
+    plt.imshow(ori_img_arr[:, :, 44], cmap="gray")
+    plt.savefig("resize_256_example.png")
 
 
     return train_loader1, train_loader2

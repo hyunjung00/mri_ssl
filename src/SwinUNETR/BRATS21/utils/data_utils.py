@@ -114,7 +114,6 @@ def get_loader(args):
     # decide how much data that you will use 
     n = round(len(train_files) * args.data_ratio)
     train_files = random.choices(train_files, k=n)
-    pdb.set_trace()
     print("Dataset all training: number of data: {}".format(len(train_files)))
 
     train_transform = transforms.Compose(
@@ -174,6 +173,7 @@ def get_loader(args):
             sampler=train_sampler,
             pin_memory=True,
         )
+        pdb.set_trace()
         val_ds = data.Dataset(data=validation_files, transform=val_transform)
         val_sampler = Sampler(val_ds, shuffle=False) if args.distributed else None
         val_loader = data.DataLoader(
