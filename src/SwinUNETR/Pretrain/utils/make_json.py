@@ -57,7 +57,7 @@ jsonFile.write(jsonString)
 jsonFile.close()
 '''
 
-data_path = "../../../../data/crossmoda/validation/"
+data_path = "../../../../data/crossmoda/pseudo_hrT2/"
 
 hrT2_files = os.listdir(data_path)
 
@@ -69,6 +69,6 @@ for i, _ in enumerate(hrT2_files):
     hrT2_val_list.append(d)
 
 jsonString = json.dumps(hrT2_val_list)
-jsonFile = open("../jsons/hrT2_val.json", "w")
+jsonFile = open("../jsons/pseduo_hrT2.json", "w")
 jsonFile.write(jsonString)
 jsonFile.close()

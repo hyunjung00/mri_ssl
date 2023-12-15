@@ -57,16 +57,20 @@ def get_loader(args):
     split1 = "/ceT1.json"
     split2 = "/hrT2.json"
     split3 = "/hrT2_val.json"
+    split4 = "/pseudo_hrT2.json"
 
     list_dir = "./jsons"
 
     jsonlist1 = list_dir + split1
     jsonlist2 = list_dir + split2
     jsonlist3 = list_dir + split3
+    jsonlist4 = list_dir + split4
 
     datadir1 = "../../../data/crossmoda/ceT1/"
     datadir2 = "../../../data/crossmoda/hrT2/"
     datadir3 = "../../../data/crossmoda/validation/"
+    datadir4 = "../../../data/crossmoda/pseudo_hrT2/"
+
 
     datalist1 = load_decathlon_datalist(jsonlist1, False, "training", base_dir=datadir1)
 
@@ -76,7 +80,8 @@ def get_loader(args):
         new_datalist1.append(item_dict)
 
     datalist2 = load_decathlon_datalist(jsonlist2, False, "training", base_dir=datadir2)
-    datalist =  new_datalist1 + datalist2
+    datalist4 = load_decathlon_datalist(jsonlist4, False, "training", base_dir=datadir4)
+    datalist =  new_datalist1 + datalist2 + datalist4
 
     #vallist1 = load_decathlon_datalist(jsonlist1, False, "validation", base_dir=datadir1)
     vallist2 = load_decathlon_datalist(jsonlist3, False, "validation", base_dir=datadir3)
