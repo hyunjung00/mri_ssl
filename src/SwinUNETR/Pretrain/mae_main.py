@@ -211,7 +211,7 @@ def main():
     parser.add_argument("--decoder_embed_dim", default=384, type=int)
     parser.add_argument("--decoder_depth", default=8, type=int)
     parser.add_argument("--decoder_num_heads", default=12, type=int)
-    parser.add_argument("--args.arch", default='vit_base', type=str)
+    parser.add_argument("--arch", default='vit_base', type=str)
 
 
     args = parser.parse_args()
