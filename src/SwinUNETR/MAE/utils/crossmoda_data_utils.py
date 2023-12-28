@@ -91,7 +91,7 @@ def get_loader(args):
     print("Dataset all validation: number of data: {}".format(len(val_files)))
 
     #ForkedPdb().set_trace()
-    train_transforms = Compose(      
+    train_transforms = Compose(
         [
             LoadImaged(keys=["image"]),
             AddChanneld(keys=["image"]),
@@ -106,7 +106,7 @@ def get_loader(args):
                 keys=["image"],
                 roi_size=[args.roi_x, args.roi_y, args.roi_z],
                 num_samples=args.sw_batch_size,
-                random_center=True, 
+                random_center=True,
                 random_size=False,
             ),
             ToTensord(keys=["image"]),

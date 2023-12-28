@@ -185,8 +185,8 @@ def main():
     parser.add_argument("--resize_x", default=512, type=int, help="roi size in x direction")
     parser.add_argument("--resize_y", default=512, type=int, help="roi size in y direction")
     parser.add_argument("--resize_z", default=128, type=int, help="roi size in z direction")
-    parser.add_argument("--roi_x", default=384, type=int, help="roi size in x direction")
-    parser.add_argument("--roi_y", default=384, type=int, help="roi size in y direction")
+    parser.add_argument("--roi_x", default=256, type=int, help="roi size in x direction")
+    parser.add_argument("--roi_y", default=256, type=int, help="roi size in y direction")
     parser.add_argument("--roi_z", default=96,  type=int, help="roi size in z direction")
 
     ## arguments for MAE
