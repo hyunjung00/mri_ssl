@@ -134,16 +134,18 @@ def main():
                     loss, x, recon, masked_x = model(val_inputs, return_image=True)
                 loss_val.append(loss.item())
                 x_gt = x.detach().cpu().numpy()
+                x_recon = recon.detach().cpu().numpy()
+                x_mask = masked_x.detach().cpu().numpy()
+
+                
                 x_gt = (x_gt - np.min(x_gt)) / (np.max(x_gt) - np.min(x_gt))
                 xgt = x_gt[0][0][:, :, 48] * 255.0
                 xgt = xgt.astype(np.uint8)
 
-                x_recon = recon.detach().cpu().numpy()
                 x_recon = (x_recon - np.min(x_recon)) / (np.max(x_recon) - np.min(x_recon))
                 x_recon = x_recon[0][0][:, :, 48] * 255.0
                 x_recon = x_recon.astype(np.uint8)
 
-                x_mask = masked_x.detach().cpu().numpy()
                 x_mask = (x_mask - np.min(x_mask)) / (np.max(x_mask) - np.min(x_mask))
                 x_mask = x_mask[0][0][:, :, 48] * 255.0
                 x_mask = x_mask.astype(np.uint8)
@@ -155,7 +157,7 @@ def main():
         return np.mean(loss_val), img_list
 
     parser = argparse.ArgumentParser(description="PyTorch Training")
-    parser.add_argument("--logdir", default="crossmoda_pretrain", type=str, help="directory to save the tensorboard logs")
+    parser.add_argument("--logdir", default="mae_example", type=str, help="directory to save the tensorboard logs")
     parser.add_argument("--epochs", default=100, type=int, help="number of training epochs")
     parser.add_argument("--num_steps", default=100000, type=int, help="number of training iterations")
     parser.add_argument("--eval_num", default=2, type=int, help="evaluation frequency")
