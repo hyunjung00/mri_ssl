@@ -1,14 +1,3 @@
-# Copyright 2020 - 2022 MONAI Consortium
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#     http://www.apache.org/licenses/LICENSE-2.0
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import argparse
 import os
 from time import time
@@ -27,13 +16,13 @@ from utils.ops import aug_rand, rot_rand
 from timm.models.layers.helpers import to_3tuple
 from lib.tools.visualization import patches3d_to_grid
 
-
-import sys
-import pdb
-
 #for mae
 from lib.models.mae3d import MAE3D
 from lib.networks.mae_vit import MAEViTEncoder, MAEViTDecoder
+
+# for Forkedpdb
+import sys
+import pdb
 
 class ForkedPdb(pdb.Pdb):
     """
@@ -56,25 +45,24 @@ def main():
         torch.save(state, checkpoint_dir)
 
     def train(args, global_step, train_loader, val_best, scaler):
+        #model.to(torch.double)
         model.train()
         loss_train = []
 
         for step, batch in enumerate(train_loader):
             t1 = time()
             x = batch["image"].cuda()
-            # x1, rot1 = rot_rand(args, x)
-            # x2, rot2 = rot_rand(args, x)
-            # x1_augment = aug_rand(args, x1)
-            # x2_augment = aug_rand(args, x2)
-            # x1_augment = x1_augment
-            # x2_augment = x2_augment
             with autocast(enabled=args.amp):
                 loss = model(x, return_image=False)
+                
             loss_train.append(loss.item())
+
             if args.amp:
                 scaler.scale(loss).backward()
                 scaler.step(optimizer)
                 scaler.update()
+
+
             else:
                 loss.backward()
                 if args.grad_clip:
@@ -125,6 +113,7 @@ def main():
         return global_step, loss, val_best
 
     def validation(args, test_loader):
+        #model.to(torch.double)
         model.eval()
         loss_val = []
         with torch.no_grad():
@@ -138,7 +127,8 @@ def main():
 
                 # visualize 
                 grid_size = []
-                for pa_size, in_size in zip(to_3tuple(args.patch_size), to_3tuple(args.input_size)):
+                input_size= (args.roi_x, args.roi_y, args.roi_z)
+                for pa_size, in_size in zip(to_3tuple(args.patch_size), input_size):
                     grid_size.append(in_size // pa_size)
                 vis_grid_hw = patches3d_to_grid(vis_tensor, patch_size=args.patch_size, grid_size=grid_size, in_chans=args.in_chans, hidden_axis='d')
 
@@ -147,8 +137,8 @@ def main():
     parser = argparse.ArgumentParser(description="PyTorch Training")
     parser.add_argument("--logdir", default="mae_example", type=str, help="directory to save the tensorboard logs")
     parser.add_argument("--epochs", default=100, type=int, help="number of training epochs")
-    parser.add_argument("--num_steps", default=100000, type=int, help="number of training iterations")
-    parser.add_argument("--eval_num", default=5000, type=int, help="evaluation frequency")
+    parser.add_argument("--num_steps", default=200000, type=int, help="number of training iterations")
+    parser.add_argument("--eval_num", default=1000, type=int, help="evaluation frequency")
     parser.add_argument("--warmup_steps", default=500, type=int, help="warmup steps")
     parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
     parser.add_argument("--feature_size", default=48, type=int, help="embedding size")
@@ -165,10 +155,10 @@ def main():
 
     parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
     parser.add_argument("--sw_batch_size", default=2, type=int, help="number of sliding window batch size")
-    parser.add_argument("--lr", default=4e-4, type=float, help="learning rate")
+    parser.add_argument("--lr", default=0.5, type=float, help="learning rate") # originally 4e-4
     parser.add_argument("--decay", default=0.1, type=float, help="decay rate")
     parser.add_argument("--momentum", default=0.9, type=float, help="momentum")
-    parser.add_argument("--lrdecay", action="store_true", help="enable learning rate decay")
+    parser.add_argument("--lrdecay", default=True, help="enable learning rate decay")
     parser.add_argument("--max_grad_norm", default=1.0, type=float, help="maximum gradient norm")
     parser.add_argument("--opt", default="adamw", type=str, help="optimization algorithm")
     parser.add_argument("--lr_schedule", default="warmup_cosine", type=str)
@@ -176,7 +166,7 @@ def main():
     parser.add_argument("--local_rank", type=int, default=0, help="local rank")
     parser.add_argument("--grad_clip", action="store_true", help="gradient clip")
     parser.add_argument("--noamp", action="store_true", help="do NOT use amp for training")
-    parser.add_argument("--dist-url", default="env://", help="url used to set up distributed training")
+    parser.add_argument("--dist-url", default="env://", help="url used to set up distributed training") # default: "env://"
     parser.add_argument("--smartcache_dataset", action="store_true", help="use monai smartcache Dataset")
     parser.add_argument("--cache_dataset", action="store_true", help="use monai cache Dataset")
     parser.add_argument("--num_workers", default=12, help="number of workers ")
@@ -185,8 +175,8 @@ def main():
     parser.add_argument("--resize_x", default=512, type=int, help="roi size in x direction")
     parser.add_argument("--resize_y", default=512, type=int, help="roi size in y direction")
     parser.add_argument("--resize_z", default=128, type=int, help="roi size in z direction")
-    parser.add_argument("--roi_x", default=256, type=int, help="roi size in x direction")
-    parser.add_argument("--roi_y", default=256, type=int, help="roi size in y direction")
+    parser.add_argument("--roi_x", default=384, type=int, help="roi size in x direction")
+    parser.add_argument("--roi_y", default=384, type=int, help="roi size in y direction")
     parser.add_argument("--roi_z", default=96,  type=int, help="roi size in z direction")
 
     ## arguments for MAE
@@ -210,12 +200,11 @@ def main():
     #parser.add_argument("--input_size", default=96, type=int)
 
 
-
     args = parser.parse_args()
     os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
 
     logdir = "./runs/" + args.logdir
-    args.amp = not args.noamp
+    args.amp = True
     torch.backends.cudnn.benchmark = True
     torch.autograd.set_detect_anomaly(True)
     args.distributed = True

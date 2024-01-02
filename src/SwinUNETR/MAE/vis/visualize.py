@@ -139,13 +139,14 @@ def get_loader(args):
                 keys=["image"], a_min=args.a_min, a_max=args.a_max, b_min=args.b_min, b_max=args.b_max, clip=True
             ),
             CenterSpatialCropd(keys=["image"], roi_size=(args.roi_x, args.roi_y, args.roi_z)),
-            RandSpatialCropSamplesd(
-                keys=["image"],
-                roi_size=[args.roi_x, args.roi_y, args.roi_z],
-                num_samples=args.sw_batch_size,
-                random_center=True, 
-                random_size=False,
-            ),
+            # SpatialPadd(keys="image", spatial_size=[args.roi_x, args.roi_y, args.roi_z]),
+            # RandSpatialCropSamplesd(
+            #     keys=["image"],
+            #     roi_size=[args.roi_x, args.roi_y, args.roi_z],
+            #     num_samples=args.sw_batch_size,
+            #     random_center=True,
+            #     random_size=False,
+            # ),
             ToTensord(keys=["image"]),
         ]
     )
@@ -157,17 +158,11 @@ def get_loader(args):
             AddChanneld(keys=["image"]),
             Orientationd(keys=["image"], axcodes="RAS"),
             #Resized(keys=["image"], spatial_size=(args.resize_x, args.resize_y, args.resize_z)),
-            ScaleIntensityRanged(
-                keys=["image"], a_min=args.a_min, a_max=args.a_max, b_min=args.b_min, b_max=args.b_max, clip=True
-            ),
-            # CenterSpatialCropd(keys=["image"], roi_size=(args.roi_x, args.roi_y, args.roi_z)),
-            # RandSpatialCropSamplesd(
-            #     keys=["image"],
-            #     roi_size=[args.roi_x, args.roi_y, args.roi_z],
-            #     num_samples=args.sw_batch_size,
-            #     random_center=True, 
-            #     random_size=False,
+            # ScaleIntensityRanged(
+            #     keys=["image"], a_min=args.a_min, a_max=args.a_max, b_min=args.b_min, b_max=args.b_max, clip=True
             # ),
+            #CenterSpatialCropd(keys=["image"], roi_size=(args.roi_x, args.roi_y, args.roi_z)),
+            #SpatialPadd(keys="image", spatial_size=[args.roi_x, args.roi_y, args.roi_z]),
             ToTensord(keys=["image"]),
         ]
     )
