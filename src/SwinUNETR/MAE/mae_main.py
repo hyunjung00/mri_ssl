@@ -155,7 +155,7 @@ def main():
 
     parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
     parser.add_argument("--sw_batch_size", default=2, type=int, help="number of sliding window batch size")
-    parser.add_argument("--lr", default=0.5, type=float, help="learning rate") # originally 4e-4
+    parser.add_argument("--lr", default=1e-5, type=float, help="learning rate") # originally 4e-4
     parser.add_argument("--decay", default=0.1, type=float, help="decay rate")
     parser.add_argument("--momentum", default=0.9, type=float, help="momentum")
     parser.add_argument("--lrdecay", default=True, help="enable learning rate decay")
