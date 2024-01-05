@@ -31,6 +31,7 @@ from monai.transforms import (
 import sys
 import pdb
 import argparse
+import random
 
 
 
@@ -82,6 +83,9 @@ def get_loader(args):
     #datalist2 = load_decathlon_datalist(jsonlist2, False, "training", base_dir=datadir2)
     #datalist4 = load_decathlon_datalist(jsonlist4, False, "training", base_dir=datadir4)
     datalist =  new_datalist1 
+
+    #randomly put data
+    #datalist = random.choices(datalist, k=100)
 
     #vallist1 = load_decathlon_datalist(jsonlist1, False, "validation", base_dir=datadir1)
     vallist2 = load_decathlon_datalist(jsonlist3, False, "validation", base_dir=datadir3)

@@ -58,11 +58,13 @@ def main():
             loss_train.append(loss.item())
 
             if args.amp:
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
-
-
+                try:
+                    scaler.scale(loss).backward()
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
+                    scaler.step(optimizer)
+                    scaler.update()
+                except RuntimeError:
+                    ForkedPdb().set_trace()
             else:
                 loss.backward()
                 if args.grad_clip:
@@ -100,13 +102,13 @@ def main():
                     }
                     save_ckp(checkpoint, logdir + "/model_bestValRMSE.pt")
                     print(
-                        "Model was saved ! Best Recon. Val Loss: {:.4f}, Recon. Val Loss: {:.4f}".format(
+                        "Model was saved ! Best Val Loss: {:.4f}, Val Loss: {:.4f}".format(
                             val_best, val_loss
                         )
                     )
                 else:
                     print(
-                        "Model was not saved ! Best Recon. Val Loss: {:.4f} Recon. Val Loss: {:.4f}".format(
+                        "Model was not saved ! Best Val Loss: {:.4f} Val Loss: {:.4f}".format(
                             val_best, val_loss
                         )
                     )
@@ -164,7 +166,7 @@ def main():
     parser.add_argument("--lr_schedule", default="warmup_cosine", type=str)
     parser.add_argument("--resume", default=None, type=str, help="resume training")
     parser.add_argument("--local_rank", type=int, default=0, help="local rank")
-    parser.add_argument("--grad_clip", action="store_true", help="gradient clip")
+    parser.add_argument("--grad_clip", default=True, help="gradient clip")
     parser.add_argument("--noamp", action="store_true", help="do NOT use amp for training")
     parser.add_argument("--dist-url", default="env://", help="url used to set up distributed training") # default: "env://"
     parser.add_argument("--smartcache_dataset", action="store_true", help="use monai smartcache Dataset")
