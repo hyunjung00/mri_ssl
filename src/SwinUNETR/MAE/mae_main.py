@@ -87,13 +87,14 @@ def main():
                 val_cond = global_step % args.eval_num == 0
 
             if val_cond:
-                val_loss, vis_grid_hw = validation(args, test_loader)
-                writer.add_scalar("Validation/loss_recon", scalar_value=val_loss, global_step=global_step)
+                val_loss = 0 
+                #val_loss, vis_grid_hw = validation(args, test_loader)
+                #writer.add_scalar("Validation/loss_recon", scalar_value=val_loss, global_step=global_step)
                 writer.add_scalar("train/loss_total", scalar_value=np.mean(loss_train), global_step=global_step)
 
                 #writer.add_image("Validation/x1_gt", vis_grid_hw, global_step, dataformats="HW")
 
-                if val_loss< val_best:
+                if val_loss<= val_best:
                     val_best = val_loss
                     checkpoint = {
                         "global_step": global_step,
@@ -140,7 +141,7 @@ def main():
     parser.add_argument("--logdir", default="mae_example", type=str, help="directory to save the tensorboard logs")
     parser.add_argument("--epochs", default=100, type=int, help="number of training epochs")
     parser.add_argument("--num_steps", default=200000, type=int, help="number of training iterations")
-    parser.add_argument("--eval_num", default=1000, type=int, help="evaluation frequency")
+    parser.add_argument("--eval_num", default=10000, type=int, help="evaluation frequency")
     parser.add_argument("--warmup_steps", default=500, type=int, help="warmup steps")
     parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
     parser.add_argument("--feature_size", default=48, type=int, help="embedding size")
