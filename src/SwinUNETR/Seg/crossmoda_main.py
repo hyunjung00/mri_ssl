@@ -203,7 +203,7 @@ parser.add_argument("--resize_z", default=30, type=int, help="roi size in z dire
 
 
 def main():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "6,7 "
     args = parser.parse_args()
     args.amp = not args.noamp
     args.logdir = "./runs/" + args.logdir      
