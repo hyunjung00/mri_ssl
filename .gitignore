@@ -3,6 +3,7 @@
 
 #ignore model 
 *.pt
+*.pth
 
 data
 
