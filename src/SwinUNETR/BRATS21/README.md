@@ -32,12 +32,8 @@ The sub-regions considered for evaluation in BraTS 21 challenge are the "enhanci
 
 The provided segmentation labels have values of 1 for NCR, 2 for ED, 4 for ET, and 0 for everything else.
 
-![image](./assets/fig_brats21.png)
-
-Figure from [Baid et al.](https://arxiv.org/pdf/2107.02314v1.pdf) [3]
-
 # Models
-We provide Swin UNETR models which are pre-trained on BraTS21 dataset as in the following. The folds
+Swin UNETR models which are pre-trained on BraTS21 dataset as in the following. The folds
 correspond to the data split in the [json file](https://drive.google.com/file/d/1i-BXYe-wZ8R9Vp3GXoajGyqaJ65Jybg1/view?usp=sharing).
 
 <table>
