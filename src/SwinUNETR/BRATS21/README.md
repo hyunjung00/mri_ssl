@@ -1,11 +1,8 @@
-# Model Overview
-This repository contains the code for [Swin UNETR](https://arxiv.org/pdf/2201.01266.pdf) [1,2] for the task of brain tumor  segmentation using the [BraTS 21](http://braintumorsegmentation.org/) challenge dataset [3,4,5,6]. Swin UNETR ranked among top-perfoming models in BraTS 21 validation phase. The architecture of Swin UNETR is demonstrated as below
-![image](./assets/swin_unetr.png)
+## Brain Tumor Segmentation 
 
-# Tutorial
-A tutorial for BraTS21 brain tumor segmentation using Swin UNETR model is provided in the following link.
+# Introduction 
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Project-MONAI/tutorials/blob/main/3d_segmentation/swin_unetr_brats21_segmentation_3d.ipynb)
+The objective of this project is to develop an efficient and accurate deep learning-based approach for brain tumor segmentation using the Swin UNETR model.The motivation behind this project is to contribute to the advancement of automated medical image analysis, which can aid clinicians in the early diagnosis and treatment planning of brain tumors. Accurate segmentation of brain tumors from MRI scans is critical for treatment planning, assessment of disease progression, and overall patient management. However, the heterogeneity of tumors, varying sizes, shapes, and intensities make this a challenging task. The Swin UNETR model combines the Swin Transformer backbone with a UNET architecture, making it highly effective for extracting both local and global features from 3D medical images.
 
 # Installing Dependencies
 Dependencies can be installed using:
@@ -16,10 +13,10 @@ pip install -r requirements.txt
 # Data Description
 
 Modality: MRI
-Size: 1470 3D volumes (1251 Training + 219 Validation)
+Size: 1470 3D volumes (1251 Training + 219 Validation) / Test dataset 53 MRI 
 Challenge: RSNA-ASNR-MICCAI Brain Tumor Segmentation (BraTS) Challenge
 
-- Register and download the official BraTS 21 dataset from the link below and place then into "TrainingData" in the dataset folder:
+- Register and download the official BraTS 21 dataset from the link below and place them into "TrainingData" in the dataset folder:
 
   https://www.synapse.org/#!Synapse:syn27046444/wiki/616992
 
@@ -114,124 +111,3 @@ model = SwinUNETR(img_size=(128,128,128),
                   )
 ```
 
-
-The above Swin UNETR model is used for multi-modal MR images (4-channel input) with input image size ```(128, 128, 128)``` and for ```3``` class segmentation outputs and feature size of  ```48```.
-More details can be found in [1]. In addition, ```use_checkpoint=True``` enables the use of gradient checkpointing for memory-efficient training.
-
-Using the default values for hyper-parameters, the following command can be used to initiate training using PyTorch native AMP package:
-``` bash
-python main.py
---feature_size=48
---batch_size=1
---logdir=unetr_test_dir
---fold=0
---optim_lr=1e-4
---lrschedule=warmup_cosine
---infer_overlap=0.5
---save_checkpoint
---val_every=10
---json_list='./jsons/brats21_folds.json'
---data_dir=/brats2021/
---use_checkpoint
---noamp
-```
-
-## Training from scratch on single GPU with gradient check-pointing and without AMP
-
-To train a `Swin UNETR` from scratch on a single GPU with gradient check-pointing and without AMP:
-
-```bash
-python main.py --json_list=<json-path> --data_dir=<data-path> --val_every=5 --noamp \
---roi_x=128 --roi_y=128 --roi_z=128  --in_channels=4 --spatial_dims=3 --use_checkpoint --feature_size=48
-```
-
-## Training from scratch on multi-GPU with gradient check-pointing and without AMP
-
-To train a `Swin UNETR` from scratch on multi-GPU for 300 epochs with gradient check-pointing and without AMP:
-
-```bash
-python main.py --json_list=<json-path> --data_dir=<data-path> --max_epochs=300 --val_every=5 --noamp --distributed \
---roi_x=128 --roi_y=128 --roi_z=128  --in_channels=4 --spatial_dims=3 --use_checkpoint --feature_size=48
-```
-
-## Training from scratch on multi-GPU without gradient check-pointing
-
-To train a `Swin UNETR` from scratch on multi-GPU without gradient check-pointing:
-
-```bash
-python main.py --json_list=<json-path> --data_dir=<data-path> --val_every=5 --distributed \
---roi_x=128 --roi_y=128 --roi_z=128  --in_channels=4 --spatial_dims=3 --feature_size=48
-```
-
-# Evaluation
-
-To evaluate a `Swin UNETR` on a single GPU, the model path using `pretrained_dir` and model
-name using `--pretrained_model_name` need to be provided:
-
-```bash
-python test.py --json_list=<json-path> --data_dir=<data-path> --feature_size=<feature-size>\
---infer_overlap=0.6 --pretrained_model_name=<model-name> --pretrained_dir=<model-dir>
-```
-
-# Finetuning
-
-Please download the checkpoints for models presented in the above table and place the model checkpoints in `pretrained_models` folder.
-Use the following commands for finetuning.
-
-## Finetuning on single GPU with gradient check-pointing and without AMP
-
-To finetune a `Swin UNETR`  model on a single GPU on fold 1 with gradient check-pointing and without amp,
-the model path using `pretrained_dir` and model  name using `--pretrained_model_name` need to be provided:
-
-```bash
-python main.py --json_list=<json-path> --data_dir=<data-path> --val_every=5 --noamp --pretrained_model_name=<model-name> \
---pretrained_dir=<model-dir> --fold=1 --roi_x=128 --roi_y=128 --roi_z=128  --in_channels=4 --spatial_dims=3 --use_checkpoint --feature_size=48
-```
-
-## Finetuning on multi-GPU with gradient check-pointing and without AMP
-
-To finetune a `Swin UNETR` base model on multi-GPU on fold 1 with gradient check-pointing and without amp,
-the model path using `pretrained_dir` and model  name using `--pretrained_model_name` need to be provided:
-
-```bash
-python main.py --json_list=<json-path> --distributed --data_dir=<data-path> --val_every=5 --noamp --pretrained_model_name=<model-name> \
---pretrained_dir=<model-dir> --fold=1 --roi_x=128 --roi_y=128 --roi_z=128  --in_channels=4 --spatial_dims=3 --use_checkpoint --feature_size=48
-```
-
-# Segmentation Output
-
-By following the commands for evaluating `Swin UNETR` in the above, `test.py` saves the segmentation outputs
-in the original spacing in a new folder based on the name of the experiment which is passed by `--exp_name`.
-
-# Citation
-If you find this repository useful, please consider citing UNETR paper:
-
-```
-@article{hatamizadeh2022swin,
-  title={Swin UNETR: Swin Transformers for Semantic Segmentation of Brain Tumors in MRI Images},
-  author={Hatamizadeh, Ali and Nath, Vishwesh and Tang, Yucheng and Yang, Dong and Roth, Holger and Xu, Daguang},
-  journal={arXiv preprint arXiv:2201.01266},
-  year={2022}
-}
-
-@inproceedings{tang2022self,
-  title={Self-supervised pre-training of swin transformers for 3d medical image analysis},
-  author={Tang, Yucheng and Yang, Dong and Li, Wenqi and Roth, Holger R and Landman, Bennett and Xu, Daguang and Nath, Vishwesh and Hatamizadeh, Ali},
-  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-  pages={20730--20740},
-  year={2022}
-}
-```
-
-# References
-[1]: Hatamizadeh, A., Nath, V., Tang, Y., Yang, D., Roth, H. and Xu, D., 2022. Swin UNETR: Swin Transformers for Semantic Segmentation of Brain Tumors in MRI Images. arXiv preprint arXiv:2201.01266.
-
-[2]: Tang, Y., Yang, D., Li, W., Roth, H.R., Landman, B., Xu, D., Nath, V. and Hatamizadeh, A., 2022. Self-supervised pre-training of swin transformers for 3d medical image analysis. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (pp. 20730-20740).
-
-[3] U.Baid, et al., The RSNA-ASNR-MICCAI BraTS 2021 Benchmark on Brain Tumor Segmentation and Radiogenomic Classification, arXiv:2107.02314, 2021.
-
-[4] B. H. Menze, A. Jakab, S. Bauer, J. Kalpathy-Cramer, K. Farahani, J. Kirby, et al. "The Multimodal Brain Tumor Image Segmentation Benchmark (BRATS)", IEEE Transactions on Medical Imaging 34(10), 1993-2024 (2015) DOI: 10.1109/TMI.2014.2377694
-
-[5] S. Bakas, H. Akbari, A. Sotiras, M. Bilello, M. Rozycki, J.S. Kirby, et al., "Advancing The Cancer Genome Atlas glioma MRI collections with expert segmentation labels and radiomic features", Nature Scientific Data, 4:170117 (2017) DOI: 10.1038/sdata.2017.117
-
-[6] S. Bakas, H. Akbari, A. Sotiras, M. Bilello, M. Rozycki, J. Kirby, et al., "Segmentation Labels and Radiomic Features for the Pre-operative Scans of the TCGA-GBM collection", The Cancer Imaging Archive, 2017. DOI: 10.7937/K9/TCIA.2017.KLXWJJ1Q
